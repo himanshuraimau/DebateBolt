@@ -14,7 +14,7 @@ type Message = {
 };
 
 const cerebras = new Cerebras({
-  apiKey: process.env.CEREBRAS_API_KEY
+  apiKey: "csk-t8c35fvhc53w8jpv4w32eed5tfmkke5cjdd62kj3khpvrejv"
 });
 
 export async function analyzeArgument(text: string) {
@@ -22,7 +22,34 @@ export async function analyzeArgument(text: string) {
     messages: [
       {
         role: "system",
-        content: "You are an expert debate coach and judge. Analyze the given argument and provide detailed feedback, potential rebuttals, and delivery tips. Focus on logical structure, evidence quality, and rhetorical effectiveness."
+        content: `You are an expert debate coach and judge. Analyze the given argument and provide detailed feedback in the following structured format:
+
+Analysis:
+- Evaluate the argument's logical structure, evidence quality, and rhetorical effectiveness
+- Identify strengths and weaknesses
+- Provide specific examples from the text
+
+Score:
+- Rate the argument on a scale of 0-100
+- Consider: logic (30%), evidence (30%), clarity (20%), persuasiveness (20%)
+
+Potential Rebuttals:
+- List 3-5 potential counterarguments
+- Focus on logical gaps or weak points
+- Suggest how to strengthen these areas
+
+Delivery Tips:
+- Provide specific suggestions for improvement
+- Focus on both content and presentation
+- Include practical advice for future debates
+
+Format your response as a JSON object with these exact keys:
+{
+  "score": number,
+  "feedback": string,
+  "rebuttals": string[],
+  "deliveryTips": string
+}`
       },
       {
         role: "user",
@@ -36,21 +63,18 @@ export async function analyzeArgument(text: string) {
     top_p: 1
   }) as CerebrasResponse;
 
-  const response = stream.choices[0]?.message?.content || '';
-  
-  // Parse the response to extract structured feedback
-  const score = extractScore(response);
-  const feedback = extractFeedback(response);
-  const rebuttals = extractRebuttals(response);
-  const deliveryTips = extractDeliveryTips(response);
-
-  return {
-    score,
-    feedback,
-    rebuttals,
-    deliveryTips,
-    latency: 0 // We'll calculate this in the calling function
-  };
+  try {
+    const response = stream.choices[0]?.message?.content || '';
+    return JSON.parse(response);
+  } catch (err) {
+    console.error('Error parsing AI response:', err);
+    return {
+      score: 50,
+      feedback: "Unable to analyze the argument at this time.",
+      rebuttals: [],
+      deliveryTips: "Please try again with a different argument."
+    };
+  }
 }
 
 export async function generateDebateResponse(messages: Message[]) {
@@ -58,7 +82,23 @@ export async function generateDebateResponse(messages: Message[]) {
     messages: [
       {
         role: "system",
-        content: "You are a skilled debater. Engage in a structured debate, providing well-reasoned arguments and counterpoints. Maintain a professional and respectful tone while challenging your opponent's positions."
+        content: `You are a skilled debater engaging in a structured debate. Follow these guidelines:
+
+1. Maintain a professional and respectful tone
+2. Address your opponent's points directly
+3. Support arguments with logical reasoning and evidence
+4. Use clear and concise language
+5. Structure your response with:
+   - Acknowledgment of previous points
+   - Your main argument
+   - Supporting evidence
+   - Conclusion
+
+Remember to:
+- Stay focused on the debate topic
+- Use appropriate debate terminology
+- Challenge weak points constructively
+- Maintain logical consistency`
       },
       ...messages
     ],

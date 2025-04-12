@@ -4,6 +4,7 @@ import { Space_Grotesk } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Providers } from "./providers"
+import { DebateProvider } from "@/lib/contexts/DebateContext"
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] })
 
@@ -22,7 +23,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${spaceGrotesk.className} noise-bg`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <Providers>{children}</Providers>
+          <DebateProvider>
+            <Providers>{children}</Providers>
+          </DebateProvider>
         </ThemeProvider>
       </body>
     </html>

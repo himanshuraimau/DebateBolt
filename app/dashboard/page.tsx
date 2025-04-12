@@ -3,42 +3,20 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Navbar } from "@/components/navbar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { GradientHeading, GlassCard } from "@/components/ui-elements"
-import { Users, Bot, Copy, Check, ArrowRight, Award, History, Settings, Loader2 } from "lucide-react"
+import { Bot, Award, History, Settings, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { fetchDebateTopics, fetchUserStats } from "@/lib/api"
+import { fetchUserStats } from "@/lib/api"
+import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
-  const [roomCode, setRoomCode] = useState("")
-  const [copied, setCopied] = useState(false)
-  const [generatedRoomCode, setGeneratedRoomCode] = useState("")
-
-  // Fetch debate topics using TanStack Query
-  const { data: topics, isLoading: topicsLoading } = useQuery({
-    queryKey: ["debateTopics"],
-    queryFn: fetchDebateTopics,
-  })
-
   // Fetch user stats using TanStack Query
   const { data: userStats, isLoading: statsLoading } = useQuery({
     queryKey: ["userStats"],
     queryFn: fetchUserStats,
   })
-
-  const generateRoomCode = () => {
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase()
-    setGeneratedRoomCode(code)
-  }
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedRoomCode)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -47,7 +25,7 @@ export default function DashboardPage() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
           <GradientHeading className="text-3xl md:text-4xl mb-2">Debate Dashboard</GradientHeading>
-          <p className="text-foreground/70">Create or join debates, track your progress, and improve your skills</p>
+          <p className="text-foreground/70">Track your progress and improve your skills</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -57,74 +35,33 @@ export default function DashboardPage() {
                 <TabsTrigger value="create" className="text-lg py-3">
                   Create Debate
                 </TabsTrigger>
-                <TabsTrigger value="join" className="text-lg py-3">
-                  Join Debate
+                <TabsTrigger value="history" className="text-lg py-3">
+                  History
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="create" className="space-y-8">
                 <GlassCard>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Card className="bg-muted/50 border-primary/20 hover:border-primary/50 transition-colors cursor-pointer">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Users className="h-5 w-5 text-primary" />
-                          Human Opponent
-                        </CardTitle>
-                        <CardDescription>Debate with another person using WebRTC video and audio</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-foreground/70 mb-4">
-                          Create a room and share the code with your opponent to start a live debate session.
-                        </p>
-                        {generatedRoomCode ? (
-                          <div className="bg-background p-4 rounded-md flex items-center justify-between">
-                            <span className="font-mono text-lg">{generatedRoomCode}</span>
-                            <Button variant="ghost" size="icon" onClick={copyToClipboard}>
-                              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                            </Button>
-                          </div>
-                        ) : null}
-                      </CardContent>
-                      <CardFooter>
-                        {generatedRoomCode ? (
-                          <div className="w-full flex gap-4">
-                            <Button className="w-full" onClick={copyToClipboard}>
-                              {copied ? "Copied!" : "Copy Code"}
-                            </Button>
-                            <Link href={`/debate/room/${generatedRoomCode}`} className="w-full">
-                              <Button className="w-full bg-primary hover:bg-primary/80">Enter Room</Button>
-                            </Link>
-                          </div>
-                        ) : (
-                          <Button className="w-full" onClick={generateRoomCode}>
-                            Generate Room Code
-                          </Button>
-                        )}
-                      </CardFooter>
-                    </Card>
-
-                    <Card className="bg-muted/50 border-primary/20 hover:border-primary/50 transition-colors cursor-pointer">
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Bot className="h-5 w-5 text-primary" />
-                          AI Opponent
-                        </CardTitle>
-                        <CardDescription>Practice your skills against our advanced AI debate system</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-foreground/70">
-                          Select a topic and difficulty level to start debating against our AI. Perfect for practice and
-                          skill development.
-                        </p>
-                      </CardContent>
-                      <CardFooter>
-                        <Link href="/debate/ai" className="w-full">
-                          <Button className="w-full">Start AI Debate</Button>
-                        </Link>
-                      </CardFooter>
-                    </Card>
-                  </div>
+                  <Card className="bg-muted/50 border-primary/20 hover:border-primary/50 transition-colors cursor-pointer">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Bot className="h-5 w-5 text-primary" />
+                        AI Opponent
+                      </CardTitle>
+                      <CardDescription>Practice your skills against our advanced AI debate system</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-foreground/70">
+                        Select a topic and difficulty level to start debating against our AI. Perfect for practice and
+                        skill development.
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <Link href="/debate/ai" className="w-full">
+                        <Button className="w-full">Start AI Debate</Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
                 </GlassCard>
 
                 <Card>
@@ -155,7 +92,6 @@ export default function DashboardPage() {
                       <label className="block text-sm font-medium mb-2">Judging</label>
                       <select className="w-full bg-muted p-2 rounded-md border border-border">
                         <option>AI Judge</option>
-                        <option>Peer Voting</option>
                         <option>No Judging</option>
                       </select>
                     </div>
@@ -173,53 +109,15 @@ export default function DashboardPage() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="join">
-                <GlassCard>
-                  <div className="text-center py-6">
-                    <h3 className="text-xl font-semibold mb-4">Join an Existing Debate</h3>
-                    <p className="text-foreground/70 mb-6 max-w-md mx-auto">
-                      Enter the room code shared by the debate creator to join their session
-                    </p>
-                    <div className="flex gap-4 max-w-md mx-auto">
-                      <Input
-                        placeholder="Enter room code"
-                        value={roomCode}
-                        onChange={(e) => setRoomCode(e.target.value)}
-                        className="text-center text-lg font-mono"
-                      />
-                      <Link href={roomCode ? `/debate/room/${roomCode}` : "#"}>
-                        <Button disabled={!roomCode} className="bg-primary hover:bg-primary/80">
-                          Join <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </GlassCard>
-
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold mb-4">Recent Rooms</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[
-                      { code: "XY12Z9", topic: "Climate Change Solutions", time: "2 hours ago" },
-                      { code: "AB34CD", topic: "AI Ethics Debate", time: "Yesterday" },
-                      { code: "QW56ER", topic: "Education Reform", time: "3 days ago" },
-                    ].map((room) => (
-                      <Card key={room.code} className="bg-muted/50">
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base font-medium">{room.topic}</CardTitle>
-                          <CardDescription className="text-xs">{room.time}</CardDescription>
-                        </CardHeader>
-                        <CardFooter className="pt-2">
-                          <Link href={`/debate/room/${room.code}`} className="w-full">
-                            <Button variant="outline" size="sm" className="w-full">
-                              Rejoin Room
-                            </Button>
-                          </Link>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
+              <TabsContent value="history">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Debate History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-foreground/70">Your past debates will appear here.</p>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>
@@ -312,18 +210,6 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span>Camera</span>
-                    <div className="w-12 h-6 bg-muted rounded-full relative">
-                      <div className="absolute w-5 h-5 bg-primary rounded-full top-0.5 right-0.5"></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Microphone</span>
-                    <div className="w-12 h-6 bg-muted rounded-full relative">
-                      <div className="absolute w-5 h-5 bg-primary rounded-full top-0.5 right-0.5"></div>
-                    </div>
-                  </div>
                   <div className="flex items-center justify-between">
                     <span>Notifications</span>
                     <div className="w-12 h-6 bg-muted rounded-full relative">
